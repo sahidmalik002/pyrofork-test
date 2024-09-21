@@ -282,59 +282,37 @@ MAX_USER_ID = 999999999999
 
 
 def get_raw_peer_id(
-        peer: Union[
-            raw.base.Peer,
-            raw.base.RequestedPeer,
-            raw.base.InputPeer
-        ]
-    ) -> Optional[int]:
-    """Get the raw peer id from a Peer object"""
-    if (
-        isinstance(peer, raw.types.PeerUser)
-        or isinstance(peer, raw.types.RequestedPeerUser)
-        or isinstance(peer, raw.types.InputPeerUser)
-    ):
+    peer: Union[raw.base.Peer, raw.base.RequestedPeer, raw.base.InputPeer]
+) -> Optional[int]:
+    """Get the raw peer ID from a Peer object"""
+    
+    if isinstance(peer, (raw.types.PeerUser, raw.types.RequestedPeerUser, raw.types.InputPeerUser)):
         return peer.user_id
 
-    if (
-        isinstance(peer, raw.types.PeerChat)
-        or isinstance(peer, raw.types.RequestedPeerChat)
-        or isinstance(peer, raw.types.InputPeerChat)
-    ):
+    elif isinstance(peer, (raw.types.PeerChat, raw.types.RequestedPeerChat, raw.types.InputPeerChat)):
         return peer.chat_id
 
-    if (
-        isinstance(peer, raw.types.PeerChannel)
-        or isinstance(peer, raw.types.RequestedPeerChannel)
-        or isinstance(peer, raw.types.InputPeerChannel)
-    ):
+    elif isinstance(peer, (raw.types.PeerChannel, raw.types.RequestedPeerChannel, raw.types.InputPeerChannel)):
         return peer.channel_id
 
-    return None
+    return None  # Return None explicitly when peer type does not match
 
 
 def get_peer_id(peer: Union[raw.base.Peer, raw.base.InputPeer]) -> int:
-    """Get the non-raw peer id from a Peer object"""
-    if (
-        isinstance(peer, raw.types.PeerUser)
-        or isinstance(peer, raw.types.InputPeerUser)
-    ):
+    """Get the non-raw peer ID from a Peer object"""
+    
+    if isinstance(peer, (raw.types.PeerUser, raw.types.InputPeerUser)):
         return peer.user_id
 
-    if (
-        isinstance(peer, raw.types.PeerChat)
-        or isinstance(peer, raw.types.InputPeerChat)
-    ):
-        return -peer.chat_id
+    elif isinstance(peer, (raw.types.PeerChat, raw.types.InputPeerChat)):
+        return -peer.chat_id  # Return negative chat_id for PeerChat
 
-    if (
-        isinstance(peer, raw.types.PeerChannel)
-        or isinstance(peer, raw.types.InputPeerChannel)
-    ):
-        return MAX_CHANNEL_ID - peer.channel_id
+    elif isinstance(peer, (raw.types.PeerChannel, raw.types.InputPeerChannel)):
+        return MAX_CHANNEL_ID - peer.channel_id  # Return ID based on MAX_CHANNEL_ID for PeerChannel
 
-    raise ValueError(f"Peer type invalid: {peer}")
-
+    # Raise an error if an unknown peer type is encountered
+    raise ValueError(f"Invalid Peer type: {type(peer).__name__}")
+    
 
 def get_peer_type(peer_id: int) -> str:
     if peer_id < 0:
