@@ -315,12 +315,17 @@ def get_peer_id(peer: Union[raw.base.Peer, raw.base.InputPeer]) -> int:
     
 
 def get_peer_type(peer_id: int) -> str:
+    """Determine the type of peer from the peer_id."""
+    if peer_id == 0:
+        raise ValueError("Peer id cannot be zero")
+
     if peer_id < 0:
         if MIN_CHAT_ID <= peer_id:
             return "chat"
 
         if MIN_CHANNEL_ID <= peer_id < MAX_CHANNEL_ID:
             return "channel"
+    
     elif 0 < peer_id <= MAX_USER_ID:
         return "user"
 
@@ -328,8 +333,12 @@ def get_peer_type(peer_id: int) -> str:
 
 
 def get_channel_id(peer_id: int) -> int:
-    return MAX_CHANNEL_ID - peer_id
+    """Convert peer_id to a channel id."""
+    # Check if it's a valid channel peer ID before conversion
+    if not (MIN_CHANNEL_ID <= peer_id < MAX_CHANNEL_ID):
+        raise ValueError(f"Invalid channel peer id: {peer_id}")
 
+    return MAX_CHANNEL_ID - peer_id
 
 def btoi(b: bytes) -> int:
     return int.from_bytes(b, "big")
